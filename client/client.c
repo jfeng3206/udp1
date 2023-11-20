@@ -60,23 +60,6 @@ struct rej_packet{
     uint16_t end_packet_id;
 };
 
-void print_data(struct data_packet dp){
-    printf("START PACKET ID: %x\n", dp.start_packet_id);
-    printf("CLIENT ID: %hhx\n", dp.client_id);
-    printf("DATA TYPE: %x\n", dp.type);
-    printf("SEGMENT_NO: %d\n", dp.segment_no);
-    printf("LENGTH: %d\n", dp.len);
-    printf("PAYLOAD: %s", dp.payload);
-    printf("END PACKET ID: %hx\n", dp.end_packet_id);
-}
-
-void print_ack(struct ack_packet ack){
-    printf("PACKET ID: %hx\n", ack.start_packet_id);
-    printf("CLIENT ID: %hhx\n", ack.client_id);
-    printf("DATA TYPE: %x\n", ack.type);
-    printf("SEGMENT NO: %x\n", ack.received_segment_no);
-    printf("END PACKET ID: %hx\n", ack.end_packet_id);
-}
 
 // Create Data Packet
 struct data_packet create_dp(void) {
@@ -88,6 +71,7 @@ struct data_packet create_dp(void) {
     return dp;
 }
 
+//Error method
 void error(const char *msg){
     perror(msg);
     exit(1);
@@ -105,8 +89,9 @@ int main(void) {
     int n = 0;
     int retry = 0;
     int seg_num = 1;
+
     //Create a socket
-    printf("******Create a socket*****\n");
+    printf("---------------Create the socket-------------\n");
     sock = socket(AF_INET, SOCK_DGRAM, 0);;
     if(sock<0)
         error("ERROR: opening socket");
@@ -149,7 +134,6 @@ int main(void) {
             dp.end_packet_id=ENDPACKETID;
         }
         
-        print_data(dp);
         
         while(n<=0 &&  retry <3){
             //send data packet to server
@@ -170,7 +154,7 @@ int main(void) {
                 printf("******Failed to receive a response. Retrying..*****\n");
                 retry ++;
             }else if (received.type== ACKTYPE  ) {
-                printf("******ACK response received*****\n");
+                printf("ACK response received\n");
             }else if(received.type == REJTYPE){
                 printf("******Reject response received******\n");
                 printf("******The Type is: %x******\n" , received.reject_sub_code);

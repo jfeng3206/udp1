@@ -65,24 +65,6 @@ struct rej_packet{
     uint16_t end_id;
 };
 
-void print_data(struct data_packet dp){
-    printf("START PACKET ID: %x\n", dp.start_id);
-    printf("CLIENT ID: %hhx\n", dp.cli_id);
-    printf("DATA TYPE: %x\n", dp.type);
-    printf("seg_no: %d\n", dp.seg_no);
-    printf("LENGTH: %d\n", dp.len);
-    printf("PAYLOAD: %s", dp.payload);
-    printf("END PACKET ID: %hx\n", dp.end_id);
-}
-
-void print_ack(struct ack_packet ack){
-    printf("PACKET ID: %hx\n", ack.start_id);
-    printf("CLIENT ID: %hhx\n", ack.cli_id);
-    printf("DATA TYPE: %x\n", ack.type);
-    printf("SEGMENT NO: %x\n", ack.rec_seg_no);
-    printf("END PACKET ID: %hx\n", ack.end_id);
-    
-}
 
 // Create Acknowledgement Packet
 struct ack_packet create_ack(struct data_packet dp) {
@@ -125,7 +107,7 @@ int main(int argc, const char * argv[]) {
     struct rej_packet rej;
     
     //Create a socket
-    printf("Create the socket\n");
+    printf("---------------Create the socket-------------\n");
     sock = socket(AF_INET, SOCK_DGRAM, 0);;
     if(sock<0)
         error("ERROR: opening socket");
@@ -139,7 +121,7 @@ int main(int argc, const char * argv[]) {
     if( bind(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0){
         error("ERROR: binding socket");
     }
-    printf("******SERVER INITIALIZED SUCCESSFULLY*****\n");
+    printf("-------Server Initialized Successfully-------\n");
     
     //Create an array to track received datapacket.
     int received[10];
@@ -153,8 +135,6 @@ int main(int argc, const char * argv[]) {
         n = recvfrom(sock, &dp, sizeof(struct data_packet), 0, (struct sockaddr *)&cli_addr, &cli_len);
         if(n<0) error("ERROR: receive from client");
         
-        //UPDATE: received packet and next expected segment number
-        print_data(dp);
         
         //ERROR HANDLING:
         int length = strlen(dp.payload);
@@ -194,6 +174,7 @@ int main(int argc, const char * argv[]) {
             //SEND ACK:
             ack = create_ack(dp);
             n=sendto(sock, &ack, sizeof(struct ack_packet), 0, (const struct sockaddr *)&cli_addr, cli_len);
+            printf("Packet received and acknowledged\n");
             if(n<0){
                 error("SEND ERROR");
             }
@@ -201,9 +182,9 @@ int main(int argc, const char * argv[]) {
         received[dp.seg_no-1]++;
         next_packet_no++;
         if(next_packet_no==12){
-            printf("-------FINISHED RECEIVING ALL PACKETS. SRVER CLOSING-------\n");
+            printf("-------FINISHED RECEIVING ALL PACKETS. SERVER CLOSING-------\n");
             exit(1);
         }
-        printf("-------RECEIVING NEW PACKET BELOW-------\n");
+        printf("-------New packet below-------\n");
     }
 }

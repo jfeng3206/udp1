@@ -36,3 +36,5 @@ This socket program is using customized protocol on top of UDP protocol for send
 - `client/`: Contains client's source code, and datapacket.txt that contains 10 packets the client will be sending.
 - `server/`: Contains server's source code.
 - `README.md`: This file.
+- `client_err_msg.png`: simulated client error response messages displayed
+- `server_err_msg.png`: simulated server error response messages displayed
